@@ -49,33 +49,40 @@
       this.handleRouting();
     },
 
+    navigateTo(newHash) {
+      if (window.location.hash === newHash) {
+        this.handleRouting();
+      } else {
+        window.location.hash = newHash;
+      }
+    },
+
     handleRouting() {
       let hash = window.location.hash || '#login';
       const [route, queryString] = hash.split('?');
 
-      const isAuth = window.Auth.isAuthenticated;
-      const isAdmin = window.Auth.isAdmin;
+      const isAuth = window.Auth && window.Auth.isAuthenticated;
+      const isAdmin = window.Auth && window.Auth.isAdmin;
 
       // Route Guards
       if (!isAuth) {
         if (route !== '#login') {
+          this.switchView('#login');
           window.location.hash = '#login';
           return;
         }
       } else {
         // Authenticated user
         if (isAdmin) {
-          if (route === '#login' || route === '#services' || route === '#my-bookings' || route === '#book') {
+          if (route !== '#admin') {
+            this.switchView('#admin');
             window.location.hash = '#admin';
             return;
           }
         } else {
           // Customer user
-          if (route === '#admin') {
-            window.location.hash = '#services';
-            return;
-          }
-          if (route === '#login') {
+          if (route === '#admin' || route === '#login') {
+            this.switchView('#services');
             window.location.hash = '#services';
             return;
           }
@@ -112,8 +119,7 @@
         if (view) view.classList.add('active');
         if (queryString && queryString.includes('id=')) {
           const serviceId = queryString.split('id=')[1];
-          // Ensure booking view is loaded if entered directly via hash
-          if (window.BookingManager && !document.getElementById('book-service-summary').innerHTML.trim()) {
+          if (window.BookingManager) {
             window.BookingManager.openBooking(serviceId);
           }
         }
@@ -141,13 +147,13 @@
 
       if (navServices) {
         navServices.addEventListener('click', () => {
-          window.location.hash = '#services';
+          this.navigateTo('#services');
         });
       }
 
       if (navBookings) {
         navBookings.addEventListener('click', () => {
-          window.location.hash = '#my-bookings';
+          this.navigateTo('#my-bookings');
         });
       }
 
