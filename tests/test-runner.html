@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>King Barbershop — Automated Test Suite</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 30px;
+      line-height: 1.6;
+    }
+    h1 {
+      color: #f59e0b;
+      margin-bottom: 8px;
+    }
+    .summary-card {
+      background: #1e293b;
+      padding: 18px;
+      border-radius: 10px;
+      margin-bottom: 24px;
+      display: flex;
+      gap: 24px;
+      font-size: 1.1rem;
+      border: 1px solid #334155;
+    }
+    .badge {
+      font-weight: bold;
+      padding: 2px 10px;
+      border-radius: 6px;
+    }
+    .badge.passed { background: #10b981; color: #fff; }
+    .badge.failed { background: #ef4444; color: #fff; }
+    .test-case {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      padding: 14px 18px;
+    }
+    .test-case.pass { border-left: 6px solid #10b981; }
+    .test-case.fail { border-left: 6px solid #ef4444; }
+    .test-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+    }
+    .test-error {
+      color: #f87171;
+      font-family: monospace;
+      margin-top: 6px;
+      background: #450a0a;
+      padding: 8px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>King Barbershop — Test Suite Verification</h1>
+  <p>Automated Verification of IndexedDB, Authentication, Services, Schedule, and Bookings</p>
+
+  <div class="summary-card">
+    <div>Total Tests: <span id="total-tests">0</span></div>
+    <div>Passed: <span id="passed-tests" class="badge passed">0</span></div>
+    <div>Failed: <span id="failed-tests" class="badge failed">0</span></div>
+  </div>
+
+  <div id="test-results">Running tests...</div>
+
+  <!-- Load App Scripts -->
+  <script src="../js/i18n.js"></script>
+  <script src="../js/db.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/services.js"></script>
+  <script src="../js/booking.js"></script>
+  <script src="../js/admin.js"></script>
+
+  <script>
+    (async function () {
+      const resultsContainer = document.getElementById('test-results');
+      const tests = [];
+      let passed = 0;
+      let failed = 0;
+
+      function assert(condition, message) {
+        if (!condition) {
+          throw new Error(message || 'Assertion failed');
+        }
+      }
+
+      function test(name, fn) {
+        tests.push({ name, fn });
+      }
+
+      // ================= TEST CASES =================
+
+      test('Test 1: IndexedDB initializes and seeds default Admin account', async () => {
+        await window.DB.init();
+        const admin = await window.DB.getUserByUsername('admin');
+        assert(admin !== null, 'Admin user was not found');
+        assert(admin.role === 'admin', 'Admin role must be "admin"');
+        assert(admin.password === '123456', 'Admin password must be "123456"');
+      });
+
+      test('Test 2: Initial services are properly seeded', async () => {
+        const services = await window.DB.getServices();
+        assert(Array.isArray(services), 'Services must be an array');
+        assert(services.length >= 5, 'Must have at least 5 initial services');
+        const first = services[0];
+        assert(first.name && first.price > 0 && first.duration > 0, 'Service object must have name, price, duration');
+      });
+
+      test('Test 3: Customer registration and duplicate username check', async () => {
+        const testUser = 'tester_' + Date.now();
+        const user = await window.Auth.signup(testUser, 'secret123');
+        assert(user.id, 'User ID should be generated');
+        assert(user.role === 'customer', 'Role must be customer');
+
+        // Verify duplicate username throws USERNAME_EXISTS
+        let duplicateFailed = false;
+        try {
+          await window.Auth.signup(testUser, 'anotherpass');
+        } catch (err) {
+          duplicateFailed = err.message === 'USERNAME_EXISTS';
+        }
+        assert(duplicateFailed, 'Should reject duplicate username');
+      });
+
+      test('Test 4: Customer and Admin login authentication', async () => {
+        // Valid admin login
+        const adminUser = await window.Auth.login('admin', '123456');
+        assert(adminUser.role === 'admin', 'Should authenticate as admin');
+        assert(window.Auth.isAdmin === true, 'Auth.isAdmin should be true');
+
+        // Invalid password test
+        let invalidFailed = false;
+        try {
+          await window.Auth.login('admin', 'wrongpassword');
+        } catch (err) {
+          invalidFailed = err.message === 'INVALID_CREDENTIALS';
+        }
+        assert(invalidFailed, 'Should reject invalid credentials');
+      });
+
+      test('Test 5: Services CRUD operations by Barber Admin', async () => {
+        // Create new service
+        const newServiceId = await window.DB.saveService({
+          name: 'Royal VIP Treatment | باقة الملوك الخاصة',
+          desc: 'All-inclusive grooming VIP treatment',
+          price: 50,
+          duration: 60,
+          image: 'assets/services-mockup.jpg'
+        });
+        assert(newServiceId, 'Service ID should be returned');
+
+        // Read service
+        const fetched = await window.DB.getServiceById(newServiceId);
+        assert(fetched.name.includes('Royal VIP'), 'Fetched service name mismatch');
+        assert(fetched.price === 50, 'Fetched price mismatch');
+
+        // Update service
+        fetched.price = 55;
+        await window.DB.saveService(fetched);
+        const updated = await window.DB.getServiceById(newServiceId);
+        assert(updated.price === 55, 'Updated price should be 55');
+
+        // Delete service
+        await window.DB.deleteService(newServiceId);
+        const deleted = await window.DB.getServiceById(newServiceId);
+        assert(deleted === null, 'Service should be deleted');
+      });
+
+      test('Test 6: Booking reservation and double-booking conflict prevention', async () => {
+        const testDate = '2026-10-15';
+        const testSlot = '11:00 AM';
+
+        // First booking succeeds
+        const bookingId = await window.DB.createBooking({
+          userId: 999,
+          customerName: 'Test Client',
+          serviceId: 1,
+          serviceName: 'Haircut',
+          price: 20,
+          duration: 30,
+          date: testDate,
+          timeSlot: testSlot
+        });
+        assert(bookingId, 'Booking ID should be created');
+
+        // Attempting second booking for identical date & time slot MUST fail
+        let conflictDetected = false;
+        try {
+          await window.DB.createBooking({
+            userId: 998,
+            customerName: 'Another Client',
+            serviceId: 2,
+            serviceName: 'Beard',
+            price: 15,
+            duration: 20,
+            date: testDate,
+            timeSlot: testSlot
+          });
+        } catch (err) {
+          conflictDetected = err.message === 'SLOT_ALREADY_BOOKED';
+        }
+        assert(conflictDetected, 'Double booking identical slot should throw SLOT_ALREADY_BOOKED');
+
+        // Cancelling first booking allows booking again
+        await window.DB.updateBookingStatus(bookingId, 'cancelled');
+        const rebookId = await window.DB.createBooking({
+          userId: 998,
+          customerName: 'Another Client',
+          serviceId: 2,
+          serviceName: 'Beard',
+          price: 15,
+          duration: 20,
+          date: testDate,
+          timeSlot: testSlot
+        });
+        assert(rebookId, 'Re-booking cancelled slot should succeed');
+      });
+
+      test('Test 7: Barber Schedule Availability toggle', async () => {
+        const testDate = '2026-10-20';
+        const testSlot = '02:00 PM';
+
+        // Toggle to disabled (false)
+        await window.DB.setScheduleAvailability(testDate, testSlot, false);
+        let overrides = await window.DB.getScheduleOverrides(testDate);
+        let slotOverride = overrides.find(o => o.timeSlot === testSlot);
+        assert(slotOverride && slotOverride.isAvailable === false, 'Slot should be marked false');
+
+        // Toggle back to available (true)
+        await window.DB.setScheduleAvailability(testDate, testSlot, true);
+        overrides = await window.DB.getScheduleOverrides(testDate);
+        slotOverride = overrides.find(o => o.timeSlot === testSlot);
+        assert(slotOverride && slotOverride.isAvailable === true, 'Slot should be marked true');
+      });
+
+      test('Test 8: Bilingual i18n switcher and RTL/LTR attributes', () => {
+        window.I18n.setLanguage('en');
+        assert(window.I18n.currentLang === 'en', 'Current lang should be en');
+        assert(document.documentElement.getAttribute('dir') === 'ltr', 'dir attribute should be ltr');
+        assert(window.I18n.t('signInBtn') === 'Sign In', 'Translation for signInBtn should be Sign In');
+
+        window.I18n.setLanguage('ar');
+        assert(window.I18n.currentLang === 'ar', 'Current lang should be ar');
+        assert(document.documentElement.getAttribute('dir') === 'rtl', 'dir attribute should be rtl');
+        assert(window.I18n.t('signInBtn') === 'تسجيل الدخول', 'Translation for signInBtn should be تسجيل الدخول');
+      });
+
+      // ================= EXECUTE ALL TESTS =================
+      resultsContainer.innerHTML = '';
+      document.getElementById('total-tests').textContent = tests.length;
+
+      for (const t of tests) {
+        const div = document.createElement('div');
+        try {
+          await t.fn();
+          passed++;
+          div.className = 'test-case pass';
+          div.innerHTML = `<div class="test-title"><span>${t.name}</span> <span class="badge passed">PASS</span></div>`;
+        } catch (err) {
+          failed++;
+          div.className = 'test-case fail';
+          div.innerHTML = `
+            <div class="test-title"><span>${t.name}</span> <span class="badge failed">FAIL</span></div>
+            <div class="test-error">${err.message}</div>
+          `;
+          console.error(t.name, err);
+        }
+        resultsContainer.appendChild(div);
+      }
+
+      document.getElementById('passed-tests').textContent = passed;
+      document.getElementById('failed-tests').textContent = failed;
+      console.log(`Tests finished: ${passed} passed, ${failed} failed`);
+    })();
+  </script>
+</body>
+</html>
