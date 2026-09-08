@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>صالون حلاقة الملك | King Barbershop</title>
+  
+  <!-- Google Fonts: Cairo (Arabic) & Cinzel + Outfit (English/Luxury) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Cinzel:wght@500;600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+  <div id="app" class="app-container">
+    
+    <!-- Global Header -->
+    <header id="app-header" class="app-header">
+      <div class="header-left">
+        <div class="brand-crest">
+          <span class="crest-icon">✂</span>
+          <div class="brand-text">
+            <span class="brand-title" data-i18n="brandTitle">صالون الملك</span>
+            <span class="brand-subtitle" data-i18n="brandSubtitle">KING BARBERSHOP</span>
+          </div>
+        </div>
+      </div>
+      <div class="header-right">
+        <!-- Language Switcher -->
+        <button id="lang-toggle" class="btn-icon lang-btn" aria-label="Toggle Language" title="تغيير اللغة / Change Language">
+          <span id="lang-text">EN</span>
+        </button>
+        <!-- User Badge & Logout -->
+        <div id="user-profile-badge" class="user-profile-badge hidden">
+          <span id="user-display-name" class="user-name"></span>
+          <button id="logout-btn" class="btn-icon logout-btn" title="تسجيل الخروج / Logout" data-i18n-title="logout">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main View Switcher Container -->
+    <main id="main-content" class="main-content">
+      
+      <!-- ================= 1. VIEW: LOGIN / SIGNUP ================= -->
+      <section id="view-login" class="view active view-login">
+        <div class="login-hero-bg"></div>
+        <div class="login-overlay"></div>
+        
+        <div class="login-content">
+          <div class="login-crest-header">
+            <div class="ornament-top">✦ ESTD 2012 ✦</div>
+            <h1 class="hero-logo-title" data-i18n="heroLogoTitle">KING</h1>
+            <div class="hero-logo-sub" data-i18n="heroLogoSub">B A R B E R S H O P</div>
+            <div class="ornament-divider">
+              <span></span><i>✂</i><span></span>
+            </div>
+          </div>
+
+          <!-- Auth Mode Tabs -->
+          <div class="auth-tabs">
+            <button id="tab-signin" class="auth-tab-btn active" data-i18n="signInTab">تسجيل الدخول</button>
+            <button id="tab-signup" class="auth-tab-btn" data-i18n="signUpTab">إنشاء حساب</button>
+          </div>
+
+          <!-- Auth Form -->
+          <form id="form-auth" class="auth-form" autocomplete="off">
+            <div class="form-group">
+              <div class="input-wrapper">
+                <span class="input-icon">👤</span>
+                <input type="text" id="auth-username" required placeholder="اسم المستخدم" data-i18n-placeholder="usernamePlaceholder" autocomplete="username">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="input-wrapper">
+                <span class="input-icon">🔒</span>
+                <input type="password" id="auth-password" required placeholder="كلمة المرور" data-i18n-placeholder="passwordPlaceholder" autocomplete="current-password">
+              </div>
+            </div>
+
+            <button type="submit" id="btn-auth-submit" class="btn-primary btn-block btn-luxury">
+              <span id="auth-btn-text" data-i18n="signInBtn">تسجيل الدخول</span>
+              <span class="arrow-icon">→</span>
+            </button>
+          </form>
+
+          <!-- Barber credentials hint -->
+          <div class="barber-hint-box">
+            <p class="hint-text">
+              <span class="badge-role">حساب الحلاق (Admin):</span>
+              <code>admin</code> / <code>123456</code>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 2. VIEW: SERVICES (CUSTOMER) ================= -->
+      <section id="view-services" class="view view-services">
+        <div class="view-header">
+          <div>
+            <h2 class="section-title" data-i18n="servicesTitle">الخدمات المتاحة</h2>
+            <p class="section-subtitle" data-i18n="servicesSubtitle">اختر الخدمة المناسبة لحجز موعدك</p>
+          </div>
+        </div>
+
+        <div id="services-list" class="services-list">
+          <!-- Dynamic Service Cards loaded via js/services.js -->
+        </div>
+      </section>
+
+      <!-- ================= 3. VIEW: BOOKING ================= -->
+      <section id="view-book" class="view view-book">
+        <div class="view-header with-back">
+          <button id="btn-back-services" class="btn-icon back-btn" aria-label="Back">
+            <span class="back-arrow">←</span>
+          </button>
+          <div class="view-title-center">
+            <h2 class="section-title" data-i18n="bookServiceTitle">حجز موعد</h2>
+            <div class="diamond-ornament">◆</div>
+          </div>
+        </div>
+
+        <!-- Selected Service Summary Card -->
+        <div id="book-service-summary" class="book-service-summary">
+          <!-- Populated dynamically -->
+        </div>
+
+        <!-- Date Selection -->
+        <div class="booking-step-section">
+          <label class="step-label" data-i18n="selectDate">اختر التاريخ</label>
+          <div id="dates-container" class="dates-slider">
+            <!-- Dynamic 14 days scroll pills -->
+          </div>
+        </div>
+
+        <!-- Time Selection -->
+        <div class="booking-step-section">
+          <div class="step-header-flex">
+            <label class="step-label" data-i18n="selectTime">اختر الوقت</label>
+            <span id="selected-date-indicator" class="selected-date-indicator"></span>
+          </div>
+          <div id="time-slots-container" class="time-slots-grid">
+            <!-- Dynamic slots -->
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <div class="booking-footer-action">
+          <button id="btn-reserve" class="btn-primary btn-large btn-block btn-luxury" disabled>
+            <span data-i18n="reserveNow">تأكيد الحجز</span>
+            <span class="arrow-icon">→</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ================= 4. VIEW: MY BOOKINGS ================= -->
+      <section id="view-my-bookings" class="view view-my-bookings">
+        <div class="view-header with-back">
+          <button id="btn-back-from-bookings" class="btn-icon back-btn" aria-label="Back">
+            <span class="back-arrow">←</span>
+          </button>
+          <div class="view-title-center">
+            <h2 class="section-title" data-i18n="myBookingsTitle">حجوزاتي</h2>
+            <div class="diamond-ornament">◆</div>
+          </div>
+        </div>
+
+        <div id="my-bookings-list" class="my-bookings-list">
+          <!-- Dynamic customer bookings -->
+        </div>
+      </section>
+
+      <!-- ================= 5. VIEW: BARBER ADMIN DASHBOARD ================= -->
+      <section id="view-admin" class="view view-admin">
+        <div class="admin-top-banner">
+          <div class="admin-badge-row">
+            <span class="admin-badge" data-i18n="barberDashboard">لوحة تحكم الحلاق</span>
+            <span class="admin-greeting" id="admin-welcome-text">أهلاً بك، الحلاق الملك</span>
+          </div>
+          
+          <!-- Quick stats -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-icon">📅</span>
+              <span class="stat-val" id="stat-total-bookings">0</span>
+              <span class="stat-label" data-i18n="statTotalBookings">إجمالي الحجوزات</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon">🕒</span>
+              <span class="stat-val" id="stat-today-bookings">0</span>
+              <span class="stat-label" data-i18n="statTodayBookings">حجوزات اليوم</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon">✂</span>
+              <span class="stat-val" id="stat-active-services">0</span>
+              <span class="stat-label" data-i18n="statServices">الخدمات</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admin Tabs -->
+        <div class="admin-tabs">
+          <button id="tab-admin-bookings" class="admin-tab active" data-tab="bookings" data-i18n="tabAdminBookings">الحجوزات</button>
+          <button id="tab-admin-services" class="admin-tab" data-tab="services" data-i18n="tabAdminServices">الخدمات</button>
+          <button id="tab-admin-schedule" class="admin-tab" data-tab="schedule" data-i18n="tabAdminSchedule">المواعيد</button>
+        </div>
+
+        <!-- Tab Panel 1: Bookings Management -->
+        <div id="panel-admin-bookings" class="admin-panel active">
+          <div class="panel-header">
+            <h3 class="panel-title" data-i18n="allBookings">قائمة الحجوزات</h3>
+            <div class="filter-wrapper">
+              <input type="date" id="admin-booking-date-filter" class="date-filter-input">
+              <button id="admin-booking-clear-filter" class="btn-sm btn-outline" data-i18n="showAll">الكل</button>
+            </div>
+          </div>
+          <div id="admin-bookings-list" class="admin-cards-list">
+            <!-- Dynamic appointments -->
+          </div>
+        </div>
+
+        <!-- Tab Panel 2: Services Management -->
+        <div id="panel-admin-services" class="admin-panel">
+          <div class="panel-header">
+            <h3 class="panel-title" data-i18n="manageServices">إدارة الخدمات</h3>
+            <button id="btn-open-add-service" class="btn-primary btn-sm">
+              <span>+</span>
+              <span data-i18n="addService">إضافة خدمة</span>
+            </button>
+          </div>
+          <div id="admin-services-list" class="admin-cards-list">
+            <!-- Dynamic services list with edit/delete -->
+          </div>
+        </div>
+
+        <!-- Tab Panel 3: Schedule Management -->
+        <div id="panel-admin-schedule" class="admin-panel">
+          <div class="panel-header">
+            <h3 class="panel-title" data-i18n="manageSchedule">تعديل المواعيد المتاحة</h3>
+            <div class="schedule-date-picker">
+              <input type="date" id="admin-schedule-date" class="date-filter-input">
+            </div>
+          </div>
+          <p class="schedule-hint" data-i18n="scheduleHint">انقر على الموعد للتبديل بين متاح / غير متاح لهذا اليوم</p>
+          <div id="admin-schedule-slots" class="schedule-slots-grid">
+            <!-- Dynamic slots with toggle switch -->
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Navigation Bar (Visible in customer views) -->
+    <nav id="bottom-nav" class="bottom-nav hidden">
+      <button id="nav-btn-services" class="nav-item active" data-view="services">
+        <span class="nav-icon">✂</span>
+        <span class="nav-label" data-i18n="navServices">الخدمات</span>
+      </button>
+      <button id="nav-btn-bookings" class="nav-item" data-view="my-bookings">
+        <span class="nav-icon">📅</span>
+        <span class="nav-label" data-i18n="navMyBookings">حجوزاتي</span>
+      </button>
+      <button id="nav-btn-logout" class="nav-item">
+        <span class="nav-icon">🚪</span>
+        <span class="nav-label" data-i18n="logout">خروج</span>
+      </button>
+    </nav>
+
+    <!-- Modal: Add / Edit Service -->
+    <div id="modal-service" class="modal-backdrop hidden">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3 id="modal-service-title" class="modal-title" data-i18n="addServiceModalTitle">إضافة خدمة جديدة</h3>
+          <button id="btn-close-service-modal" class="btn-icon modal-close">&times;</button>
+        </div>
+        <form id="form-service" class="modal-form">
+          <input type="hidden" id="service-edit-id" value="">
+          
+          <div class="form-group">
+            <label data-i18n="serviceNameLabel">اسم الخدمة</label>
+            <input type="text" id="service-name" required placeholder="مثال: قصة شعر ملكية" data-i18n-placeholder="serviceNamePlaceholder">
+          </div>
+
+          <div class="form-group">
+            <label data-i18n="serviceDescLabel">وصف الخدمة</label>
+            <textarea id="service-desc" rows="2" placeholder="وصف موجز للخدمة" data-i18n-placeholder="serviceDescPlaceholder"></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col">
+              <label data-i18n="servicePriceLabel">السعر ($)</label>
+              <input type="number" id="service-price" required min="1" step="0.5" placeholder="20">
+            </div>
+            <div class="form-group col">
+              <label data-i18n="serviceDurationLabel">المدة (دقيقة)</label>
+              <input type="number" id="service-duration" required min="5" step="5" placeholder="30">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label data-i18n="serviceImageLabel">رابط الصورة (اختياري)</label>
+            <input type="text" id="service-image" placeholder="assets/services-mockup.jpg">
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" id="btn-cancel-service" class="btn-secondary" data-i18n="cancel">إلغاء</button>
+            <button type="submit" class="btn-primary" data-i18n="save">حفظ</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Global Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+  </div>
+
+  <!-- Scripts in dependency order -->
+  <script src="js/i18n.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/services.js"></script>
+  <script src="js/booking.js"></script>
+  <script src="js/admin.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
