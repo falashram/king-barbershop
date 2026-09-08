@@ -16,11 +16,11 @@
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
 
-    let icon = 'ℹ️';
-    if (type === 'success') icon = '✓';
-    if (type === 'error') icon = '⚠️';
+    let icon = (window.Icons && window.Icons.info) ? window.Icons.info(18) : '';
+    if (type === 'success') icon = (window.Icons && window.Icons.check) ? window.Icons.check(18) : '';
+    if (type === 'error') icon = (window.Icons && window.Icons.alert) ? window.Icons.alert(18) : '';
 
-    toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+    toast.innerHTML = `<span style="display:inline-flex;align-items:center;">${icon}</span> <span>${message}</span>`;
     container.appendChild(toast);
 
     setTimeout(() => {

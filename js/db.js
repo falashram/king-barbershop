@@ -300,6 +300,22 @@
       });
     },
 
+    parseSlotToMinutes(slotStr) {
+      if (!slotStr) return 0;
+      const parts = slotStr.trim().split(' ');
+      const time = parts[0];
+      const modifier = parts[1];
+      let [hours, minutes] = time.split(':').map(Number);
+      if (modifier === 'PM' && hours < 12) hours += 12;
+      if (modifier === 'AM' && hours === 12) hours = 0;
+      return hours * 60 + minutes;
+    },
+
+    getSalonClosingMinutes() {
+      const lastSlot = STANDARD_SLOTS[STANDARD_SLOTS.length - 1];
+      return this.parseSlotToMinutes(lastSlot) + 30; // 07:00 PM (1140 min)
+    },
+
     // ================= BOOKINGS =================
     async getBookings() {
       const db = await openDatabase();
@@ -338,13 +354,28 @@
 
     async createBooking(booking) {
       const db = await openDatabase();
-      // Double booking check
-      const dayBookings = await this.getBookingsByDate(booking.date);
-      const isAlreadyBooked = dayBookings.some(
-        (b) => b.timeSlot === booking.timeSlot && b.status !== 'cancelled'
-      );
 
-      if (isAlreadyBooked) {
+      const duration = Number(booking.duration) || 30;
+      const slotStart = this.parseSlotToMinutes(booking.timeSlot);
+      const slotEnd = slotStart + duration;
+      const closingTime = this.getSalonClosingMinutes();
+
+      // Disallow booking if duration extends past the salon closing time
+      if (slotEnd > closingTime) {
+        throw new Error('SERVICE_EXCEEDS_CLOSING_TIME');
+      }
+
+      // Overlap and double booking check
+      const dayBookings = await this.getBookingsByDate(booking.date);
+      const activeBookings = dayBookings.filter(b => b.status !== 'cancelled');
+      const hasOverlap = activeBookings.some((b) => {
+        const bStart = this.parseSlotToMinutes(b.timeSlot);
+        const bDuration = Number(b.duration) || 30;
+        const bEnd = bStart + bDuration;
+        return Math.max(slotStart, bStart) < Math.min(slotEnd, bEnd);
+      });
+
+      if (hasOverlap) {
         throw new Error('SLOT_ALREADY_BOOKED');
       }
 

@@ -51,7 +51,11 @@
         <img src="${imageSrc}" alt="${currentService.name}" class="summary-thumb" onerror="this.src='assets/services-mockup.jpg'">
         <div class="summary-info">
           <h3>${this.escapeHtml(currentService.name)}</h3>
-          <p class="summary-meta">$${currentService.price} &nbsp;|&nbsp; ⏱ ${currentService.duration} ${durationSuffix}</p>
+          <p class="summary-meta">
+            $${currentService.price} &nbsp;|&nbsp; 
+            ${window.Icons ? window.Icons.clock(13) : ''} 
+            ${currentService.duration} ${durationSuffix}
+          </p>
         </div>
       `;
     },
@@ -136,17 +140,48 @@
           dayBookings.filter(b => b.status !== 'cancelled').map(b => b.timeSlot)
         );
 
+        const duration = currentService ? Number(currentService.duration) : 30;
+        const closingTime = window.DB.getSalonClosingMinutes();
+
         container.innerHTML = standardSlots.map(slot => {
-          const isBooked = bookedSlots.has(slot);
+          const slotStart = window.DB.parseSlotToMinutes(slot);
+          const slotEnd = slotStart + duration;
+
+          // 1. Service duration extends past salon closing time
+          const exceedsClosing = slotEnd > closingTime;
+
+          // 2. Direct slot booked or barber disabled
+          const isDirectlyBooked = bookedSlots.has(slot);
           const isBarberDisabled = disabledSlots.has(slot);
-          const isUnavailable = isBooked || isBarberDisabled;
+
+          // 3. Multi-slot overlap check (if duration > 30 min)
+          let overlapsOtherBookings = isDirectlyBooked;
+          if (!overlapsOtherBookings && duration > 30) {
+            for (let t = slotStart; t < slotEnd; t += 30) {
+              const checkSlot = standardSlots.find(s => window.DB.parseSlotToMinutes(s) === t);
+              if (checkSlot && (bookedSlots.has(checkSlot) || disabledSlots.has(checkSlot))) {
+                overlapsOtherBookings = true;
+                break;
+              }
+            }
+          }
+
+          const isUnavailable = exceedsClosing || isBarberDisabled || overlapsOtherBookings;
           const isSelected = selectedTimeSlot === slot;
+
+          let reasonTooltip = '';
+          if (exceedsClosing) {
+            reasonTooltip = window.I18n.t('slotExceedsClosing');
+          } else if (isUnavailable) {
+            reasonTooltip = window.I18n.t('slotUnavailable');
+          }
 
           return `
             <button 
               type="button" 
               class="time-slot-btn ${isUnavailable ? 'disabled booked' : ''} ${isSelected ? 'active' : ''}" 
               data-slot="${slot}"
+              title="${reasonTooltip}"
               ${isUnavailable ? 'disabled' : ''}
             >
               ${slot}
@@ -230,7 +265,7 @@
         return;
       }
 
-      container.innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div><p>...</p></div>';
+      container.innerHTML = `<div class="empty-state"><div class="empty-icon">${window.Icons ? window.Icons.hourglass(32) : ''}</div><p>...</p></div>`;
 
       try {
         const bookings = await window.DB.getBookingsByUser(user.id);
@@ -238,7 +273,7 @@
         if (!bookings || bookings.length === 0) {
           container.innerHTML = `
             <div class="empty-state">
-              <div class="empty-icon">📅</div>
+              <div class="empty-icon">${window.Icons ? window.Icons.calendar(36) : ''}</div>
               <p>${window.I18n.t('noBookingsYet')}</p>
             </div>
           `;
@@ -269,8 +304,8 @@
                 <span class="badge-status ${badgeClass}">${statusText}</span>
               </div>
               <div class="booking-card-body">
-                <span>📅 ${b.date}</span>
-                <span>🕒 ${b.timeSlot}</span>
+                <span>${window.Icons ? window.Icons.calendar(14) : ''} ${b.date}</span>
+                <span>${window.Icons ? window.Icons.clock(14) : ''} ${b.timeSlot}</span>
               </div>
               <div class="booking-card-footer">
                 <span class="booking-price">$${b.price}</span>

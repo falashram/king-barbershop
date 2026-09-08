@@ -70,6 +70,7 @@
   <div id="test-results">Running tests...</div>
 
   <!-- Load App Scripts -->
+  <script src="../js/icons.js"></script>
   <script src="../js/i18n.js"></script>
   <script src="../js/db.js"></script>
   <script src="../js/auth.js"></script>
@@ -249,6 +250,28 @@
         assert(window.I18n.currentLang === 'ar', 'Current lang should be ar');
         assert(document.documentElement.getAttribute('dir') === 'rtl', 'dir attribute should be rtl');
         assert(window.I18n.t('signInBtn') === 'تسجيل الدخول', 'Translation for signInBtn should be تسجيل الدخول');
+      });
+
+      test('Test 9: Service duration exceeding salon closing time is blocked', async () => {
+        const testDate = '2026-11-01';
+        // The last standard slot is 06:30 PM (1110 min). Salon closes at 07:00 PM (1140 min).
+        // A 60-minute service booked at 06:30 PM would end at 07:30 PM (1170 min), which exceeds closing time.
+        let durationBlocked = false;
+        try {
+          await window.DB.createBooking({
+            userId: 1001,
+            customerName: 'Late Client',
+            serviceId: 1,
+            serviceName: 'Haircut & Styling',
+            price: 30,
+            duration: 60,
+            date: testDate,
+            timeSlot: '06:30 PM'
+          });
+        } catch (err) {
+          durationBlocked = err.message === 'SERVICE_EXCEEDS_CLOSING_TIME';
+        }
+        assert(durationBlocked, 'Booking past salon closing time must throw SERVICE_EXCEEDS_CLOSING_TIME');
       });
 
       // ================= EXECUTE ALL TESTS =================

@@ -71,7 +71,7 @@
       const dateFilterInput = document.getElementById('admin-booking-date-filter');
       if (!container) return;
 
-      container.innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div><p>...</p></div>';
+      container.innerHTML = `<div class="empty-state"><div class="empty-icon">${window.Icons ? window.Icons.hourglass(32) : ''}</div><p>...</p></div>`;
 
       try {
         let bookings = await window.DB.getBookings();
@@ -84,7 +84,7 @@
         if (!bookings || bookings.length === 0) {
           container.innerHTML = `
             <div class="empty-state">
-              <div class="empty-icon">📅</div>
+              <div class="empty-icon">${window.Icons ? window.Icons.calendar(40) : ''}</div>
               <p>${window.I18n.t('noAdminBookings')}</p>
             </div>
           `;
@@ -111,23 +111,33 @@
           return `
             <div class="admin-booking-item">
               <div class="admin-booking-row">
-                <span class="client-name">👤 ${this.escapeHtml(b.customerName || 'Customer')}</span>
+                <span class="client-name">
+                  ${window.Icons ? window.Icons.user(14) : ''}
+                  ${this.escapeHtml(b.customerName || 'Customer')}
+                </span>
                 <span class="badge-status ${badgeClass}">${statusText}</span>
               </div>
-              <div style="font-size: 0.85rem; font-weight: 600; color: var(--accent-light);">
-                ✂ ${this.escapeHtml(b.serviceName)} - $${b.price}
+              <div style="font-size: 0.85rem; font-weight: 600; color: var(--accent-light); display: flex; align-items: center; gap: 6px;">
+                ${window.Icons ? window.Icons.scissors(13) : ''}
+                <span>${this.escapeHtml(b.serviceName)} - $${b.price}</span>
               </div>
               <div style="font-size: 0.8rem; color: var(--text-muted); display: flex; gap: 14px;">
-                <span>📅 ${b.date}</span>
-                <span>🕒 ${b.timeSlot}</span>
+                <span style="display: flex; align-items: center; gap: 4px;">
+                  ${window.Icons ? window.Icons.calendar(13) : ''} ${b.date}
+                </span>
+                <span style="display: flex; align-items: center; gap: 4px;">
+                  ${window.Icons ? window.Icons.clock(13) : ''} ${b.timeSlot}
+                </span>
               </div>
               ${isActionable ? `
                 <div class="admin-booking-actions">
                   <button type="button" class="btn-complete" onclick="window.AdminManager.setBookingStatus(${b.id}, 'completed')">
-                    ${window.I18n.t('actionComplete')}
+                    ${window.Icons ? window.Icons.check(14) : ''}
+                    <span>${window.I18n.t('actionComplete')}</span>
                   </button>
-                  <button type="button" class="btn-cancel-booking" style="flex:1;" onclick="window.AdminManager.setBookingStatus(${b.id}, 'cancelled')">
-                    ${window.I18n.t('actionCancel')}
+                  <button type="button" class="btn-cancel-booking" style="flex:1; display:flex; align-items:center; justify-content:center; gap:4px;" onclick="window.AdminManager.setBookingStatus(${b.id}, 'cancelled')">
+                    ${window.Icons ? window.Icons.cross(14) : ''}
+                    <span>${window.I18n.t('actionCancel')}</span>
                   </button>
                 </div>
               ` : ''}
@@ -156,7 +166,7 @@
       const container = document.getElementById('admin-services-list');
       if (!container) return;
 
-      container.innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div><p>...</p></div>';
+      container.innerHTML = `<div class="empty-state"><div class="empty-icon">${window.Icons ? window.Icons.hourglass(32) : ''}</div><p>...</p></div>`;
 
       try {
         const services = await window.DB.getServices();
@@ -164,7 +174,7 @@
         if (!services || services.length === 0) {
           container.innerHTML = `
             <div class="empty-state">
-              <div class="empty-icon">✂</div>
+              <div class="empty-icon">${window.Icons ? window.Icons.scissors(36) : ''}</div>
               <p>${window.I18n.t('noAdminBookings')}</p>
             </div>
           `;
@@ -183,8 +193,12 @@
                 </div>
               </div>
               <div class="admin-service-actions">
-                <button type="button" class="btn-edit-service" onclick="window.AdminManager.openEditService(${srv.id})">✏</button>
-                <button type="button" class="btn-delete-service" onclick="window.AdminManager.deleteService(${srv.id})">🗑</button>
+                <button type="button" class="btn-edit-service" title="Edit" onclick="window.AdminManager.openEditService(${srv.id})">
+                  ${window.Icons ? window.Icons.edit(14) : ''}
+                </button>
+                <button type="button" class="btn-delete-service" title="Delete" onclick="window.AdminManager.deleteService(${srv.id})">
+                  ${window.Icons ? window.Icons.trash(14) : ''}
+                </button>
               </div>
             </div>
           `;

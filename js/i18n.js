@@ -44,6 +44,8 @@
       bookingSuccess: 'تم حجز موعدك بنجاح! ننتظر زيارتك.',
       bookingErrorNoSlot: 'يرجى تحديد وقت الموعد أولاً.',
       bookingSlotUnavailable: 'هذا الموعد تم حجزه مؤخراً، يرجى اختيار موعد آخر.',
+      slotExceedsClosing: 'غير متاح - مدة الخدمة تتجاوز وقت نهاية العمل',
+      slotUnavailable: 'الموعد محجوز أو غير متاح',
       dayNames: ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'],
       monthNames: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'],
 
@@ -75,8 +77,8 @@
       showAll: 'عرض الكل',
       noAdminBookings: 'لا توجد أي حجوزات مسجلة حالياً.',
       clientName: 'الزبون',
-      actionComplete: 'تم الإنجاز ✓',
-      actionCancel: 'إلغاء ✕',
+      actionComplete: 'تم الإنجاز',
+      actionCancel: 'إلغاء',
       bookingMarkedCompleted: 'تم تعيين الحجز كمكتمل.',
 
       // Admin Services
@@ -140,6 +142,8 @@
       bookingSuccess: 'Your appointment is booked successfully!',
       bookingErrorNoSlot: 'Please select an appointment time slot first.',
       bookingSlotUnavailable: 'This time slot was just reserved, please pick another.',
+      slotExceedsClosing: 'Unavailable - service duration exceeds closing time',
+      slotUnavailable: 'Slot is booked or unavailable',
       dayNames: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
       monthNames: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
 
@@ -171,8 +175,8 @@
       showAll: 'All',
       noAdminBookings: 'No client appointments found.',
       clientName: 'Client',
-      actionComplete: 'Complete ✓',
-      actionCancel: 'Cancel ✕',
+      actionComplete: 'Complete',
+      actionCancel: 'Cancel',
       bookingMarkedCompleted: 'Appointment marked as completed.',
 
       // Admin Services

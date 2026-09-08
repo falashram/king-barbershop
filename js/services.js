@@ -31,14 +31,14 @@
       const container = document.getElementById('services-list');
       if (!container) return;
 
-      container.innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div><p>...</p></div>';
+      container.innerHTML = `<div class="empty-state"><div class="empty-icon">${window.Icons ? window.Icons.hourglass(32) : ''}</div><p>...</p></div>`;
 
       await this.loadServices();
 
       if (!this.services || this.services.length === 0) {
         container.innerHTML = `
           <div class="empty-state">
-            <div class="empty-icon">✂</div>
+            <div class="empty-icon">${window.Icons ? window.Icons.scissors(36) : ''}</div>
             <p>${window.I18n.t('noAdminBookings')}</p>
           </div>
         `;
@@ -59,15 +59,16 @@
               <div class="service-meta">
                 <span class="service-price">$${srv.price}</span>
                 <span class="service-duration">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <polyline points="12 6 12 12 16 14"></polyline>
-                  </svg>
+                  ${window.Icons ? window.Icons.clock(13) : ''}
                   ${srv.duration} ${durationSuffix}
                 </span>
               </div>
             </div>
-            <div class="service-chevron">&rsaquo;</div>
+            <div class="service-chevron">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </div>
           </div>
         `;
       }).join('');
